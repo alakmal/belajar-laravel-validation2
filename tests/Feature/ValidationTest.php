@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Validation\ValidationException;
+use PhpParser\Node\Stmt\TryCatch;
 
 class ValidationTest extends TestCase
 {
@@ -52,8 +54,14 @@ class ValidationTest extends TestCase
         ];
 
         $validator = Validator::make($data, $rules);
-        self::assertTrue($validator->fails());
-        self::assertFalse($validator->passes());
-        // dd($validator->errors()->toJson());
+
+        try {
+            $validator->validate();
+            self::fail("ValidationException not throw");
+        } catch (ValidationException $exception) {
+            self::assertNotNull($exception->errors());
+            $message = $exception->validator->errors();
+            Log::info($message->toJson(JSON_PRETTY_PRINT));
+        }
     }
 }
