@@ -42,18 +42,19 @@ class ValidationTest extends TestCase
     public function testError()
     {
         $data = [
-            "username" => "",
-            "password" => "12345"
+            "username" => "admin",
+            "password" => "rahasia"
         ];
 
         $rules = [
-            "username" => "required",
-            "password" => "required"
+            "username" => "required|email|max:100",
+            "password" => ["required", "min:6", "max:20"]
         ];
 
         $validator = Validator::make($data, $rules);
         self::assertTrue($validator->fails());
         self::assertFalse($validator->passes());
         // dd($validator->errors()->toJson());
+        Log::info($validator->errors()->toJson(JSON_PRETTY_PRINT));
     }
 }
