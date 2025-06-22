@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Validation\ValidationException;
 
 class ValidationTest extends TestCase
 {
@@ -42,18 +43,22 @@ class ValidationTest extends TestCase
     public function testError()
     {
         $data = [
-            "username" => "",
-            "password" => "12345"
+            "username" => "example@gmail.com",
+            "password" => "123456"
         ];
 
         $rules = [
-            "username" => "required",
-            "password" => "required"
+            "username" => "required|email|max:100",
+            "password" => "required|min:6|max:20"
         ];
 
         $validator = Validator::make($data, $rules);
-        self::assertTrue($validator->fails());
-        self::assertFalse($validator->passes());
+        try {
+            $result = $validator->validate();
+            self::assertNotNull($result);
+        } catch (ValidationException $exception) {
+            self::fail($exception->getMessage());
+        }
         // dd($validator->errors()->toJson());
     }
 }
