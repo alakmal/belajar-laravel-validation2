@@ -52,6 +52,11 @@ class ValidationTest extends TestCase
         ];
 
         $validator = Validator::make($data, $rules);
-        dd($validator->errors()->toJson());
+        self::assertTrue($validator->fails());
+        $message = $validator->getMessageBag();
+
+        // dd($message->toJson());
+        Log::info($message->toJson(JSON_PRETTY_PRINT));
+        // up show at json
     }
 }
