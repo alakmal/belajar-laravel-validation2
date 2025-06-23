@@ -23,22 +23,23 @@ class ValidationTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function testValidation()
+    public function testLoginSuccess()
     {
-
-        $data = [
+        $response = $this->post("/form/login", [
             "username" => "admin",
-            "password" => "12345"
-        ];
+            "password" => "rahasia"
+        ]);
 
-        $rules = [
-            "username" => "required",
-            "password" => "required"
-        ];
+        $response->assertStatus(200);
+    }
 
-        $validator = Validator::make($data, $rules);
+    public function testLoginFailed()
+    {
+        $response = $this->post("/form/login", [
+            "username" => "",
+            "password" => ""
+        ]);
 
-        self::assertTrue($validator->passes());
-        self::assertFalse($validator->fails());
+        $response->assertStatus(400);
     }
 }
