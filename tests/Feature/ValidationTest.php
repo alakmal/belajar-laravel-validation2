@@ -2,11 +2,14 @@
 
 namespace Tests\Feature;
 
+use App\Rules\RegistrationRule;
+use App\Rules\Upppercase;
 use Tests\TestCase;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\App;
 
 class ValidationTest extends TestCase
 {
@@ -41,19 +44,20 @@ class ValidationTest extends TestCase
 
     public function testError()
     {
+        App::setLocale("id");
         $data = [
-            "username" => "",
-            "password" => "12345"
+            "username" => "example@gmail.com",
+            "password" => "rahasia"
         ];
 
         $rules = [
-            "username" => "required",
-            "password" => "required"
+            "username" => ["required", "email", "max:100", new Upppercase()],
+            "password" => ["required", "min:6", "max:20", new RegistrationRule()]
         ];
 
         $validator = Validator::make($data, $rules);
         self::assertTrue($validator->fails());
         self::assertFalse($validator->passes());
-        // dd($validator->errors()->toJson());
+        dump($validator->errors()->toJson(JSON_PRETTY_PRINT));
     }
 }
