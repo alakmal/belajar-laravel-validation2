@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Rules\RegistrationRule;
 use App\Rules\Upppercase;
+use Closure;
 use Tests\TestCase;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -51,7 +52,14 @@ class ValidationTest extends TestCase
         ];
 
         $rules = [
-            "username" => ["required", "email", "max:100", new Upppercase()],
+            "username" => ["required", "email", "max:100", function (string $attibute, string $value, Closure $fail) {
+                if (strtoupper($value) != $value) {
+                    $fail("validation.custom.uppercase")->translate([
+                        "attribute" => $attibute,
+                        "value" => $value
+                    ]);
+                }
+            }],
             "password" => ["required", "min:6", "max:20", new RegistrationRule()]
         ];
 
