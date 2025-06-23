@@ -27,13 +27,22 @@ class ValidationTest extends TestCase
     {
 
         $data = [
-            "username" => "admin",
-            "password" => "12345"
+            "name" => [
+                "first" => "Eko",
+                "last" => "Kurniawan"
+            ],
+            "address" => [
+                "street" => "Jl. Mangga",
+                "city" => "Jakarta",
+                "country" => "Indonesia"
+            ]
         ];
-
         $rules = [
-            "username" => "required",
-            "password" => "required"
+            "name.first" => ["required", "max:100"],
+            "name.last" => ["max:100"],
+            "address.street" => ["max:200"],
+            "address.city" => ["required", "max:100"],
+            "address.country" => ["required", "max:100"]
         ];
 
         $validator = Validator::make($data, $rules);
@@ -42,22 +51,38 @@ class ValidationTest extends TestCase
         self::assertFalse($validator->fails());
     }
 
-    public function testError()
+    public function testIndexedArrayValidation()
     {
-        App::setLocale("id");
-        $data = [
-            "username" => "example@gmail.com",
-            "password" => "rahasia"
-        ];
 
+        $data = [
+            "name" => [
+                "first" => "Eko",
+                "last" => "Kurniawan"
+            ],
+            "address" => [
+                [
+                    "street" => "Jl. Mangga",
+                    "city" => "Jakarta",
+                    "country" => "Indonesia"
+                ],
+                [
+                    "street" => "Jl. Manggis",
+                    "city" => "Jakarta",
+                    "country" => "Indonesia"
+                ]
+            ]
+        ];
         $rules = [
-            "username" => ["required", "email", "max:100", new Upppercase()],
-            "password" => ["required", "min:6", "max:20", new RegistrationRule()]
+            "name.first" => ["required", "max:100"],
+            "name.last" => ["max:100"],
+            "address.*.street" => ["max:200"],
+            "address.*.city" => ["required", "max:100"],
+            "address.*.country" => ["required", "max:100"]
         ];
 
         $validator = Validator::make($data, $rules);
-        self::assertTrue($validator->fails());
-        self::assertFalse($validator->passes());
-        dump($validator->errors()->toJson(JSON_PRETTY_PRINT));
+
+        self::assertTrue($validator->passes());
+        self::assertFalse($validator->fails());
     }
 }
