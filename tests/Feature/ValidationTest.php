@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Validation\Validator as ValidationValidator;
 
 class ValidationTest extends TestCase
 {
@@ -42,18 +43,27 @@ class ValidationTest extends TestCase
     public function testError()
     {
         $data = [
-            "username" => "",
-            "password" => "12345"
+            "username" => "example@gmail.com",
+            "password" => "example@gmail.com"
         ];
 
         $rules = [
-            "username" => "required",
-            "password" => "required"
+            "username" => "required|email|max:100",
+            "password" => "required|min:6|max:20"
         ];
 
         $validator = Validator::make($data, $rules);
+        $validator->after(
+            function (ValidationValidator $validator) {
+                $data = $validator->getData();
+
+                if ($data["username"] == $data["password"]) {
+                    $validator->errors()->add("password", "password tidak boleh sama dengan username");
+                }
+            }
+        );
+
         self::assertTrue($validator->fails());
-        self::assertFalse($validator->passes());
         // dd($validator->errors()->toJson());
     }
 }
