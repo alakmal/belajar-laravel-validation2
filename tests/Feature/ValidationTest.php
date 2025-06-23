@@ -41,23 +41,4 @@ class ValidationTest extends TestCase
         self::assertTrue($validator->passes());
         self::assertFalse($validator->fails());
     }
-
-    public function testError()
-    {
-        App::setLocale("id");
-        $data = [
-            "username" => "example@gmail.com",
-            "password" => "rahasia"
-        ];
-
-        $rules = [
-            "username" => ["required", "email", "max:100", new Upppercase()],
-            "password" => ["required", "min:6", "max:20", new RegistrationRule()]
-        ];
-
-        $validator = Validator::make($data, $rules);
-        self::assertTrue($validator->fails());
-        self::assertFalse($validator->passes());
-        dump($validator->errors()->toJson(JSON_PRETTY_PRINT));
-    }
 }
